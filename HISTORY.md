@@ -2,6 +2,8 @@
 
 # unpublished changes since 15.2.0
 
+- Fix: #3726 expression parser: throw an error on a wrong number of arguments
+  in `and`, `or`, `bitAnd`, `bitOr`, and `nullish`.
 - Docs: fix miscellaneous errors in examples on doc pages, in partial
   preparation for a systematic test harness on all such examples (#3741).
   Thanks @yxshee.

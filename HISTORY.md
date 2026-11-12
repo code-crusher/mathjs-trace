@@ -2,6 +2,10 @@
 
 # unpublished changes since 15.2.0
 
+- Fix: #3674 `setUnion` placed the intersection of the two sets at the end of
+  the result instead of in its sorted position, contradicting the documented
+  example. It now returns elements only in `a1`, then the common elements, then
+  elements only in `a2`.
 - Docs: fix miscellaneous errors in examples on doc pages, in partial
   preparation for a systematic test harness on all such examples (#3741).
   Thanks @yxshee.

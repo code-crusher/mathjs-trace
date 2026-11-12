@@ -11,8 +11,17 @@ describe('setUnion', function () {
     assert.deepStrictEqual(math.setUnion([], []), [])
   })
 
+  it('should place the intersection in its sorted position when the sets overlap', function () {
+    assert.deepStrictEqual(math.setUnion([1, 2, 3, 4], [3, 4, 5, 6]), [1, 2, 3, 4, 5, 6])
+    assert.deepStrictEqual(math.setUnion([1, 2], [2, 3]), [1, 2, 3])
+    assert.deepStrictEqual(math.setUnion([1, 2, 3], [1, 2, 3]), [1, 2, 3])
+    assert.deepStrictEqual(math.setUnion([[1, 2], [3, 4]], [[3, 4], [5, 6]]), [1, 2, 3, 4, 5, 6])
+  })
+
   it('should return the union of two multisets', function () {
-    assert.deepStrictEqual(math.setUnion([1, 1, 2, 3, 4, 4], [1, 2, 3, 4, 4, 4]), [1, 4, 1, 2, 3, 4, 4])
+    assert.deepStrictEqual(math.setUnion([1, 1, 2, 3, 4, 4], [1, 2, 3, 4, 4, 4]), [1, 1, 2, 3, 4, 4, 4])
+    assert.deepStrictEqual(math.setUnion([1, 1], [1, 1, 1]), [1, 1, 1])
+    assert.deepStrictEqual(math.setUnion([1, 1, 1], [1, 1]), [1, 1, 1])
   })
 
   it('should return the same type of output as the inputs', function () {

@@ -97,6 +97,11 @@ import { bitXorDocs } from './function/bitwise/bitXor.js'
 import { leftShiftDocs } from './function/bitwise/leftShift.js'
 import { rightArithShiftDocs } from './function/bitwise/rightArithShift.js'
 import { rightLogShiftDocs } from './function/bitwise/rightLogShift.js'
+import { toUnsignedDocs } from './function/bitwise/toUnsigned.js'
+import { toSignedDocs } from './function/bitwise/toSigned.js'
+import { toHexDocs } from './function/bitwise/toHex.js'
+import { toBinDocs } from './function/bitwise/toBin.js'
+import { toOctDocs } from './function/bitwise/toOct.js'
 import { bellNumbersDocs } from './function/combinatorics/bellNumbers.js'
 import { catalanDocs } from './function/combinatorics/catalan.js'
 import { compositionDocs } from './function/combinatorics/composition.js'
@@ -421,6 +426,11 @@ export const embeddedDocs = {
   leftShift: leftShiftDocs,
   rightArithShift: rightArithShiftDocs,
   rightLogShift: rightLogShiftDocs,
+  toUnsigned: toUnsignedDocs,
+  toSigned: toSignedDocs,
+  toHex: toHexDocs,
+  toBin: toBinDocs,
+  toOct: toOctDocs,
 
   // functions - combinatorics
   bellNumbers: bellNumbersDocs,

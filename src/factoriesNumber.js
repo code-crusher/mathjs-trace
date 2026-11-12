@@ -143,6 +143,11 @@ export const createBitXor = /* #__PURE__ */ createNumberFactory('bitXor', bitXor
 export const createLeftShift = /* #__PURE__ */ createNumberFactory('leftShift', leftShiftNumber)
 export const createRightArithShift = /* #__PURE__ */ createNumberFactory('rightArithShift', rightArithShiftNumber)
 export const createRightLogShift = /* #__PURE__ */ createNumberFactory('rightLogShift', rightLogShiftNumber)
+export { createToUnsigned } from './function/bitwise/toUnsigned.js'
+export { createToSigned } from './function/bitwise/toSigned.js'
+export { createToHex } from './function/bitwise/toHex.js'
+export { createToBin } from './function/bitwise/toBin.js'
+export { createToOct } from './function/bitwise/toOct.js'
 
 // combinatorics
 export { createStirlingS2 } from './function/combinatorics/stirlingS2.js'

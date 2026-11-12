@@ -1693,6 +1693,90 @@ export interface MathJsInstance extends MathJsFactory {
   ): NoLiteralType<T>
 
   /**
+   * Reinterpret a value as an unsigned integer of a given bit width, like
+   * the C cast `(uintN_t)x`. Non-integer values are truncated towards zero,
+   * then wrapped around modulo `2^bits` using two's complement semantics.
+   * The bit width is 32 by default.
+   * @param x Value to reinterpret
+   * @param bits Number of bits, 32 by default
+   * @returns The unsigned value
+   */
+  toUnsigned(
+    x: number | bigint | BigNumber | Fraction
+  ): number | bigint | BigNumber
+  toUnsigned(
+    x: number | bigint | BigNumber | Fraction,
+    bits: number | bigint | BigNumber
+  ): number | bigint | BigNumber
+  toUnsigned(
+    x: MathCollection,
+    bits?: number | bigint | BigNumber
+  ): MathCollection
+
+  /**
+   * Reinterpret a value as a two's complement signed integer of a given bit
+   * width, like the C cast `(intN_t)x`. Non-integer values are truncated
+   * towards zero, then wrapped around modulo `2^bits` using two's
+   * complement semantics. The bit width is 32 by default.
+   * @param x Value to reinterpret
+   * @param bits Number of bits, 32 by default
+   * @returns The signed value
+   */
+  toSigned(
+    x: number | bigint | BigNumber | Fraction
+  ): number | bigint | BigNumber
+  toSigned(
+    x: number | bigint | BigNumber | Fraction,
+    bits: number | bigint | BigNumber
+  ): number | bigint | BigNumber
+  toSigned(
+    x: MathCollection,
+    bits?: number | bigint | BigNumber
+  ): MathCollection
+
+  /**
+   * Format a value as a hexadecimal string of a given bit width, zero
+   * padded to the full width.
+   * @param x Value to format
+   * @param bits Number of bits, 32 by default
+   * @returns The hexadecimal representation of the bit pattern
+   */
+  toHex(x: number | bigint | BigNumber | Fraction): string
+  toHex(
+    x: number | bigint | BigNumber | Fraction,
+    bits: number | bigint | BigNumber
+  ): string
+  toHex(x: MathCollection, bits?: number | bigint | BigNumber): MathCollection
+
+  /**
+   * Format a value as a binary string of a given bit width, zero padded to
+   * the full width.
+   * @param x Value to format
+   * @param bits Number of bits, 32 by default
+   * @returns The binary representation of the bit pattern
+   */
+  toBin(x: number | bigint | BigNumber | Fraction): string
+  toBin(
+    x: number | bigint | BigNumber | Fraction,
+    bits: number | bigint | BigNumber
+  ): string
+  toBin(x: MathCollection, bits?: number | bigint | BigNumber): MathCollection
+
+  /**
+   * Format a value as an octal string of a given bit width, zero padded to
+   * the full width.
+   * @param x Value to format
+   * @param bits Number of bits, 32 by default
+   * @returns The octal representation of the bit pattern
+   */
+  toOct(x: number | bigint | BigNumber | Fraction): string
+  toOct(
+    x: number | bigint | BigNumber | Fraction,
+    bits: number | bigint | BigNumber
+  ): string
+  toOct(x: MathCollection, bits?: number | bigint | BigNumber): MathCollection
+
+  /**
    * Bitwise left logical shift of a value x by y number of bits, x << y.
    * For matrices, the function is evaluated element wise. For units, the
    * function is evaluated on the best prefix base.
@@ -4340,6 +4424,11 @@ export const {
   leftShiftDependencies,
   rightArithShiftDependencies,
   rightLogShiftDependencies,
+  toUnsignedDependencies,
+  toSignedDependencies,
+  toHexDependencies,
+  toBinDependencies,
+  toOctDependencies,
 
   // combinatorics dependencies
   bellNumbersDependencies,
@@ -6118,6 +6207,56 @@ export interface MathJsChain<TValue> {
     this: MathJsChain<T>,
     y: number
   ): MathJsChain<NoLiteralType<T>>
+
+  /**
+   * Reinterpret a value as an unsigned integer of a given bit width, like
+   * the C cast `(uintN_t)x`. The bit width is 32 by default.
+   * @param bits Number of bits, 32 by default
+   */
+  toUnsigned(
+    this: MathJsChain<number | bigint | BigNumber | Fraction | MathCollection>,
+    bits?: number | bigint | BigNumber
+  ): MathJsChain<number | bigint | BigNumber | MathCollection>
+
+  /**
+   * Reinterpret a value as a two's complement signed integer of a given bit
+   * width, like the C cast `(intN_t)x`. The bit width is 32 by default.
+   * @param bits Number of bits, 32 by default
+   */
+  toSigned(
+    this: MathJsChain<number | bigint | BigNumber | Fraction | MathCollection>,
+    bits?: number | bigint | BigNumber
+  ): MathJsChain<number | bigint | BigNumber | MathCollection>
+
+  /**
+   * Format a value as a hexadecimal string of a given bit width, zero
+   * padded to the full width.
+   * @param bits Number of bits, 32 by default
+   */
+  toHex(
+    this: MathJsChain<number | bigint | BigNumber | Fraction | MathCollection>,
+    bits?: number | bigint | BigNumber
+  ): MathJsChain<string | MathCollection>
+
+  /**
+   * Format a value as a binary string of a given bit width, zero padded to
+   * the full width.
+   * @param bits Number of bits, 32 by default
+   */
+  toBin(
+    this: MathJsChain<number | bigint | BigNumber | Fraction | MathCollection>,
+    bits?: number | bigint | BigNumber
+  ): MathJsChain<string | MathCollection>
+
+  /**
+   * Format a value as an octal string of a given bit width, zero padded to
+   * the full width.
+   * @param bits Number of bits, 32 by default
+   */
+  toOct(
+    this: MathJsChain<number | bigint | BigNumber | Fraction | MathCollection>,
+    bits?: number | bigint | BigNumber
+  ): MathJsChain<string | MathCollection>
 
   /*************************************************************************
    * Combinatorics functions
@@ -7909,6 +8048,11 @@ export const {
   leftShift,
   rightArithShift,
   rightLogShift,
+  toUnsigned,
+  toSigned,
+  toHex,
+  toBin,
+  toOct,
 
   // combinatorics
   bellNumbers,

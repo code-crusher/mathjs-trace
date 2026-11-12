@@ -2,6 +2,11 @@
 
 # unpublished changes since 15.2.0
 
+- Feat: #3725 add integer type casting functions `toUnsigned(x, bits)` and
+  `toSigned(x, bits)`, plus the width-aware formatters `toHex`, `toBin`, and
+  `toOct`. These reinterpret a value at an arbitrary bit width using two's
+  complement semantics, truncating non-integer values towards zero, and
+  return exact bigint results when the value does not fit in a number.
 - Docs: fix miscellaneous errors in examples on doc pages, in partial
   preparation for a systematic test harness on all such examples (#3741).
   Thanks @yxshee.

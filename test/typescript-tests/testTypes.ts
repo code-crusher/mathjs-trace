@@ -176,6 +176,27 @@ Basic usage examples
   // narrowed type inference
   const _b: Matrix = math.add(math.matrix([2]), math.matrix([3]))
   const _c: Matrix = math.subtract(math.matrix([4]), math.matrix([5]))
+
+  // integer type casting
+  expectTypeOf(math.toUnsigned(-1)).toMatchTypeOf<number | bigint | BigNumber>()
+  expectTypeOf(math.toUnsigned(-1, 8)).toMatchTypeOf<
+    number | bigint | BigNumber
+  >()
+  expectTypeOf(math.toSigned(255, 8)).toMatchTypeOf<
+    number | bigint | BigNumber
+  >()
+  expectTypeOf(math.toUnsigned([1, 2])).toMatchTypeOf<MathCollection>()
+  expectTypeOf(math.toHex(-1, 16)).toEqualTypeOf<string>()
+  expectTypeOf(math.toBin(-1, 8)).toEqualTypeOf<string>()
+  expectTypeOf(math.toOct(-1, 16)).toEqualTypeOf<string>()
+  expectTypeOf(math.toHex([1, 2])).toMatchTypeOf<MathCollection>()
+
+  expectTypeOf(math.chain(-1).toUnsigned(8)).toMatchTypeOf<
+    MathJsChain<number | bigint | BigNumber | MathCollection>
+  >()
+  expectTypeOf(math.chain(-1).toHex(8)).toMatchTypeOf<
+    MathJsChain<string | MathCollection>
+  >()
 }
 
 /*

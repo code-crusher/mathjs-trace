@@ -414,6 +414,17 @@ describe('format', function () {
         assert.strictEqual(math.format(bignumber(-0.000000000777777), { notation: 'engineering', precision: 2 }), '-780e-12')
       })
 
+      it('should format BigNumbers with an exponent outside the double precision range to engineering notation', function () {
+        // values beyond Number.MAX_VALUE / below Number.MIN_VALUE, see #3729
+        assert.strictEqual(math.format(bignumber('1e323'), { notation: 'engineering' }), '100e+321')
+        assert.strictEqual(math.format(bignumber('1e324'), { notation: 'engineering' }), '1e+324')
+        assert.strictEqual(math.format(bignumber('1.23e324'), { notation: 'engineering' }), '1.23e+324')
+        assert.strictEqual(math.format(bignumber('-1.23e324'), { notation: 'engineering' }), '-1.23e+324')
+        assert.strictEqual(math.format(bignumber('1e400'), { notation: 'engineering' }), '10e+399')
+        assert.strictEqual(math.format(bignumber('1e-324'), { notation: 'engineering' }), '1e-324')
+        assert.strictEqual(math.format(bignumber('1.5e-330'), { notation: 'engineering' }), '1.5e-330')
+      })
+
       it('should support BigNumber lowerExp and upperExp', function () {
         const options = {
           lowerExp: math.bignumber('-2'),

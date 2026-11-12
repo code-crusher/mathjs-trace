@@ -198,7 +198,10 @@ export function toEngineering (value, precision) {
   const newExp = e % 3 === 0 ? e : (e < 0 ? (e - 3) - (e % 3) : e - (e % 3))
 
   // find difference in exponents, and calculate the value without exponent
-  const valueWithoutExp = value.mul(Math.pow(10, -newExp))
+  // use a BigNumber power of ten, since a native Number overflows or
+  // underflows for exponents outside the double precision range
+  const BigNumber = value.constructor
+  const valueWithoutExp = value.mul(new BigNumber(10).pow(-newExp))
 
   let valueStr = valueWithoutExp.toPrecision(precision)
   if (valueStr.includes('e')) {

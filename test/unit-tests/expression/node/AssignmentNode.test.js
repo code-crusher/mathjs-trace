@@ -101,6 +101,69 @@ describe('AssignmentNode', function () {
     assert.deepStrictEqual(scope, { a: { b: { c: 3 } } })
   })
 
+  it('should compile an AssignmentNode with nested property index and dynamic index without setting the parent property', function () {
+    // see https://github.com/josdejong/mathjs/issues/3707
+    // assigning a property of a nested object must not trigger a setter
+    // on the parent object for the property referring to the child object
+    const a = new SymbolNode('a')
+    const object = new AccessorNode(a, new IndexNode([new ConstantNode('b')]))
+    const index = new IndexNode([new SymbolNode('i')])
+    const value = new ConstantNode(3)
+    const n = new AssignmentNode(object, index, value)
+
+    const expr = n.compile()
+
+    const parentSets = []
+    const childSets = []
+    const child = new Proxy({ c: 0 }, {
+      set (target, prop, value) {
+        childSets.push(prop)
+        return Reflect.set(target, prop, value)
+      }
+    })
+    const parent = new Proxy({ b: child }, {
+      set (target, prop, value) {
+        parentSets.push(prop)
+        return Reflect.set(target, prop, value)
+      }
+    })
+
+    const scope = { a: parent, i: 'c' }
+    assert.strictEqual(expr.evaluate(scope), 3)
+    assert.deepStrictEqual(childSets, ['c'])
+    assert.deepStrictEqual(parentSets, [])
+  })
+
+  it('should compile an AssignmentNode with nested string and dynamic index', function () {
+    // strings are immutable: assigning a substring must write the new
+    // string back to the parent object
+    const a = new SymbolNode('a')
+    const object = new AccessorNode(a, new IndexNode([new ConstantNode('b')]))
+    const index = new IndexNode([new SymbolNode('i')])
+    const value = new ConstantNode('E')
+    const n = new AssignmentNode(object, index, value)
+
+    const expr = n.compile()
+
+    const scope = { a: { b: 'hello' }, i: 2 }
+    assert.strictEqual(expr.evaluate(scope), 'E')
+    assert.deepStrictEqual(scope.a, { b: 'hEllo' })
+  })
+
+  it('should compile an AssignmentNode with dynamic index on parent and string child', function () {
+    const a = new SymbolNode('a')
+    const object = new AccessorNode(a, new IndexNode([new SymbolNode('p')]))
+    const index = new IndexNode([new ConstantNode(2)])
+    const value = new ConstantNode('E')
+    const n = new AssignmentNode(object, index, value)
+
+    const expr = n.compile()
+
+    const scope = { a: { b: 'hello' }, p: 'b' }
+    assert.strictEqual(expr.evaluate(scope), 'E')
+    assert.deepStrictEqual(scope.a, { b: 'hEllo' })
+  })
+
   it('should compile an AssignmentNode with matrix index', function () {
     const object = new SymbolNode('a')
     const index = new IndexNode([

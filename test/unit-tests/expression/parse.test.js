@@ -1372,6 +1372,33 @@ describe('parse', function () {
       assert.strictEqual(scope.g, 7)
     })
 
+    it('should not set the parent property when assigning a nested object property with an index', function () {
+      // see https://github.com/josdejong/mathjs/issues/3707
+      // assigning a property of a nested object must not trigger a setter
+      // on the parent object for the property referring to the child object
+      const childSets = []
+      const parentSets = []
+      const child = new Proxy({ x: 4 }, {
+        set (target, prop, value) {
+          childSets.push(prop)
+          return Reflect.set(target, prop, value)
+        }
+      })
+      const parent = new Proxy({ child }, {
+        set (target, prop, value) {
+          parentSets.push(prop)
+          return Reflect.set(target, prop, value)
+        }
+      })
+
+      const scope = { parent, child, property: 'x' }
+      assert.strictEqual(parseAndEval('parent.child[property] = 5', scope), 5)
+      assert.strictEqual(parseAndEval('child[property] = 6', scope), 6)
+      assert.deepStrictEqual(childSets, ['x', 'x'])
+      assert.deepStrictEqual(parentSets, [])
+      assert.strictEqual(parent.child.x, 6)
+    })
+
     it('should parse variable assignment inside a function call', function () {
       const scope = {}
       assert.deepStrictEqual(parseAndEval('sqrt(x=4)', scope), 2)

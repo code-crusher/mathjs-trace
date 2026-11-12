@@ -172,8 +172,15 @@ export const createAssignmentNode = /* #__PURE__ */ factory(name, dependencies, 
             // Important: we pass childObject instead of context:
             const index = evalIndex(scope, args, childObject)
             const value = evalValue(scope, args, context)
-            setSafeProperty(
-              parent, parentProp, assign(childObject, index, value))
+            const childResult = assign(childObject, index, value)
+
+            // `assign` mutates the child object in place and returns it, except
+            // for immutable types like strings, which return a new value that
+            // must be applied to the parent (see #3707)
+            if (childResult !== childObject) {
+              setSafeProperty(parent, parentProp, childResult)
+            }
+
             return value
           }
         } else {
@@ -189,8 +196,14 @@ export const createAssignmentNode = /* #__PURE__ */ factory(name, dependencies, 
             // Important:  we pass childObject instead of context
             const index = evalIndex(scope, args, childObject)
             const value = evalValue(scope, args, context)
+            const childResult = assign(childObject, index, value)
 
-            assign(parent, parentIndex, assign(childObject, index, value))
+            // `assign` mutates the child object in place and returns it, except
+            // for immutable types like strings, which return a new value that
+            // must be applied to the parent (see #3707)
+            if (childResult !== childObject) {
+              assign(parent, parentIndex, childResult)
+            }
 
             return value
           }

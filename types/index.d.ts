@@ -952,23 +952,23 @@ export interface MathJsInstance extends MathJsFactory {
    */
   compile(exprs: MathExpression[]): EvalFunction[]
 
-  // TODO properly type this
   /**
    * Evaluate an expression.
+   *
+   * The result type can be specified as a generic type parameter. When left
+   * unspecified, `any` is returned since an expression can resolve to any
+   * value (number, BigNumber, Complex, Unit, Matrix, etc.).
    * @param expr The expression to be evaluated
    * @param scope Scope to read/write variables
    * @returns The result of the expression
    */
-  evaluate(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  evaluate<TResult = any>(expr: MathExpression[], scope?: MathScope): TResult[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  evaluate<TResult = any>(
     expr: MathExpression | Matrix,
     scope?: MathScope
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): any
-  evaluate(
-    expr: MathExpression[],
-    scope?: MathScope
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): any[]
+  ): TResult
 
   /**
    * Retrieve help on a function or data type. Help files are retrieved
@@ -4842,7 +4842,7 @@ export interface ObjectWrappingMap<T extends string | number | symbol, U> {
 
 export interface EvalFunction {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  evaluate(scope?: MathScope): any
+  evaluate<TResult = any>(scope?: MathScope): TResult
 }
 
 // ResultSet type and helper
@@ -4880,7 +4880,7 @@ export interface MathNode {
    * node.compile().evaluate(scope). Example:
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  evaluate(scope?: MathScope): any
+  evaluate<TResult = any>(scope?: MathScope): TResult
   /**
    * Test whether this node equals an other node. Does a deep comparison
    * of the values of both nodes.
@@ -5021,10 +5021,16 @@ export interface MathNode {
 export interface Parser {
   /**
    * Evaluate an expression. Returns the result of the expression.
+   *
+   * The result type can be specified as a generic type parameter. When left
+   * unspecified, `any` is returned since an expression can resolve to any
+   * value (number, BigNumber, Complex, Unit, Matrix, etc.).
    * @param expr The expression to evaluate
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  evaluate(expr: string | string[]): any
+  evaluate<TResult = any>(expr: string[]): TResult[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  evaluate<TResult = any>(expr: string): TResult
   /**
    * Retrieve a variable or function from the parser’s scope.
    * @param name The name of the variable or function to be retrieved
@@ -5359,21 +5365,24 @@ export interface MathJsChain<TValue> {
    */
   compile(this: MathJsChain<MathExpression>): MathJsChain<EvalFunction>
 
-  // TODO properly type this
   /**
    * Evaluate an expression.
+   *
+   * The result type can be specified as a generic type parameter. When left
+   * unspecified, `any` is returned since an expression can resolve to any
+   * value (number, BigNumber, Complex, Unit, Matrix, etc.).
    * @param scope Scope to read/write variables
    */
-  evaluate(
-    this: MathJsChain<MathExpression | Matrix>,
-    scope?: MathScope
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): MathJsChain<any>
-  evaluate(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  evaluate<TResult = any>(
     this: MathJsChain<MathExpression[]>,
     scope?: MathScope
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): MathJsChain<any[]>
+  ): MathJsChain<TResult[]>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  evaluate<TResult = any>(
+    this: MathJsChain<MathExpression | Matrix>,
+    scope?: MathScope
+  ): MathJsChain<TResult>
 
   /**
    * Retrieve help on a function or data type. Help files are retrieved

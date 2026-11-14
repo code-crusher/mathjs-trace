@@ -156,6 +156,16 @@ Basic usage examples
 
   // expressions
   math.evaluate('1.2 * (2 + 4.5)')
+  // evaluate can return any value, so it defaults to `any`
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  expectTypeOf(math.evaluate('1 + 1')).toEqualTypeOf<any>()
+  // the result type can be specified via a generic type parameter
+  expectTypeOf(math.evaluate<number>('1 + 1')).toEqualTypeOf<number>()
+  expectTypeOf(math.evaluate<number>(['1 + 1', '2 + 2'])).toEqualTypeOf<
+    number[]
+  >()
+  // MathNode.evaluate can also be typed generically
+  expectTypeOf(math.parse('1 + 1').evaluate<number>()).toEqualTypeOf<number>()
 
   // chained operations
   const a = math.chain(3).add(4).multiply(2).done()
@@ -205,6 +215,14 @@ if (isResultSet(result)) {
   const entries = result.valueOf() // ✅ should be typed as unknown[]
   const _last = entries.slice(-1)[0] // ✅ access last result safely
 }
+
+// evaluate can return any value, so it defaults to `any`
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+expectTypeOf(evaluate('1 + 1')).toEqualTypeOf<any>()
+// the result type can be specified via a generic type parameter
+expectTypeOf(evaluate<number>('1 + 1')).toEqualTypeOf<number>()
+expectTypeOf(evaluate<number>(['1 + 1', '2 + 2'])).toEqualTypeOf<number[]>()
+expectTypeOf(evaluate<string>('"hello"')).toEqualTypeOf<string>()
 
 /*
   Arithmetic function examples
@@ -417,6 +435,13 @@ Chaining examples
   expectTypeOf(math.chain(['1 + 1', '2 + 2']).evaluate()).toMatchTypeOf<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     MathJsChain<any[]>
+  >()
+  // the result type can be specified via a generic type parameter
+  expectTypeOf(math.chain('1 + 1').evaluate<number>()).toMatchTypeOf<
+    MathJsChain<number>
+  >()
+  expectTypeOf(math.chain(['1 + 1', '2 + 2']).evaluate<number>()).toMatchTypeOf<
+    MathJsChain<number[]>
   >()
 
   // parse
@@ -1302,9 +1327,20 @@ Expressions examples
     const code2 = math.compile('a = a + 3')
     const scope: MathScope = { a: 7 }
     code2.evaluate(scope)
+    // the result type of EvalFunction.evaluate can be specified generically
+    expectTypeOf(code2.evaluate<number>(scope)).toEqualTypeOf<number>()
   }
   // 4. using a parser
   const parser = math.parser()
+
+  // parser.evaluate can return any value, so it defaults to `any`
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  expectTypeOf(parser.evaluate('1 + 1')).toEqualTypeOf<any>()
+  // the result type can be specified via a generic type parameter
+  expectTypeOf(parser.evaluate<number>('1 + 1')).toEqualTypeOf<number>()
+  expectTypeOf(parser.evaluate<number>(['1 + 1', '2 + 2'])).toEqualTypeOf<
+    number[]
+  >()
 
   // get and set variables and functions
   {

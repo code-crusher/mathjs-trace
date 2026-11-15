@@ -146,6 +146,18 @@ describe('parse', function () {
       assert.strictEqual(scope.f(3), 9)
     })
 
+    it('should not leak an assignment to a bound parameter to the scope', function () {
+      // see issue #3723: assigning to a bound parameter like `x` must not
+      // modify a variable named `x` in the scope
+      const scope = { x: 3, k: 5 }
+      const f = parse('f(x) = [x = x + 1, k = k - 1]').compile().evaluate(scope)
+      assert.deepStrictEqual(f(0).valueOf(), [1, 4])
+
+      // `x` (bound) stays untouched, `k` (free) is updated
+      assert.strictEqual(scope.x, 3)
+      assert.strictEqual(scope.k, 4)
+    })
+
     it('should support variable assignment inside a function definition', function () {
       const scope = {}
       parse('f(x)=(y=x)*2').compile().evaluate(scope)

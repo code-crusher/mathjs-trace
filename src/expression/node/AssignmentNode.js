@@ -129,6 +129,16 @@ export const createAssignmentNode = /* #__PURE__ */ factory(name, dependencies, 
           throw new TypeError('SymbolNode expected as object')
         }
 
+        if (argNames[name] === true) {
+          // this is a FunctionAssignment argument (like `x` in `f(x) = x = 2`):
+          // assign the variable locally, not affecting the outer scope
+          return function evalAssignmentNode (scope, args, context) {
+            const value = evalValue(scope, args, context)
+            args[name] = value
+            return value
+          }
+        }
+
         return function evalAssignmentNode (scope, args, context) {
           const value = evalValue(scope, args, context)
           scope.set(name, value)
@@ -146,12 +156,20 @@ export const createAssignmentNode = /* #__PURE__ */ factory(name, dependencies, 
         }
       } else if (isSymbolNode(this.object)) {
         // update a matrix subset, for example `a[2]=3`
+        const localArg = argNames[name] === true
         return function evalAssignmentNode (scope, args, context) {
           const childObject = evalObject(scope, args, context)
           const value = evalValue(scope, args, context)
           // Important:  we pass childObject instead of context:
           const index = evalIndex(scope, args, childObject)
-          scope.set(name, assign(childObject, index, value))
+          const updated = assign(childObject, index, value)
+          if (localArg) {
+            // assign a FunctionAssignment argument (like `x` in `f(x) = x[2] = 3`)
+            // locally, not affecting the outer scope
+            args[name] = updated
+          } else {
+            scope.set(name, updated)
+          }
           return value
         }
       } else { // isAccessorNode(node.object) === true

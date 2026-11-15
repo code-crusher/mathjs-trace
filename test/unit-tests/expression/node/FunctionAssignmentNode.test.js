@@ -136,6 +136,48 @@ describe('FunctionAssignmentNode', function () {
     assert.strictEqual(fib(8), 21)
   })
 
+  it('should not leak assignments to bound parameters into the scope', function () {
+    // see issue #3723: assigning to a bound parameter like `x` in
+    // `f(x) = [x = x + 1, k = k - 1]` must not modify a variable named `x`
+    // in the scope the function is compiled against
+    const scope = { x: 3, k: 5 }
+    const f = math.parse('f(x) = [x = x + 1, k = k - 1]').compile().evaluate(scope)
+    assert.deepStrictEqual(f(0).valueOf(), [1, 4])
+
+    // the bound variable `x` is untouched, only the free variable `k` is
+    assert.strictEqual(scope.x, 3)
+    assert.strictEqual(scope.k, 4)
+    assert.strictEqual(typeof scope.f, 'function')
+  })
+
+  it('should not create a scope variable when assigning to a bound parameter', function () {
+    // see issue #3723: alpha-conversion of a bound parameter must not change
+    // the effects of the function on the scope
+    const scope = { x: 3, k: 5 }
+    const f = math.parse('f(y) = [y = y + 1, k = k - 1]').compile().evaluate(scope)
+    assert.deepStrictEqual(f(0).valueOf(), [1, 4])
+
+    assert.strictEqual(scope.x, 3)
+    assert.strictEqual(scope.k, 4)
+    assert.strictEqual(scope.y, undefined)
+  })
+
+  it('should locally reassign a bound parameter without affecting the scope', function () {
+    const scope = { x: 100 }
+    const f = math.parse('f(x) = x = 2').compile().evaluate(scope)
+    assert.strictEqual(f(0), 2)
+    assert.strictEqual(scope.x, 100)
+  })
+
+  it('should locally update a matrix subset of a bound parameter', function () {
+    const scope = { x: 100 }
+    const f = math.parse('f(x) = x[2] = 5').compile().evaluate(scope)
+    const arr = [1, 2, 3]
+    assert.strictEqual(f(arr), 5)
+    assert.deepStrictEqual(arr, [1, 5, 3])
+    assert.strictEqual(scope.x, 100)
+  })
+
   it('should pass function arguments in scope to functions with rawArgs', function () {
     const outputScope = function (args, math, scope) {
       return toObject(scope)

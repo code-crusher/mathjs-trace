@@ -2,6 +2,10 @@
 
 # unpublished changes since 15.2.0
 
+- Fix: #3723 bound variables of a function assignment no longer affect the
+  scope: assigning to a bound parameter inside the function body (like
+  `x` in `f(x) = x = x + 1`) stays local to the function, so bound
+  variables behave like genuinely fresh variables regardless of their name.
 - Docs: fix miscellaneous errors in examples on doc pages, in partial
   preparation for a systematic test harness on all such examples (#3741).
   Thanks @yxshee.

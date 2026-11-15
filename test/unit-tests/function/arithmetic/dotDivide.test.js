@@ -55,6 +55,13 @@ describe('dotDivide', function () {
     assert.strictEqual(dotDivide(10, math.unit('5 m')).toString(), '2 m^-1')
   })
 
+  it('should divide a unit and a matrix or array elementwise', function () {
+    // unit / array and array / unit, computed elementwise (see #3660)
+    assert.deepStrictEqual(dotDivide(math.unit('10 N'), [0.5, 2]).map((u) => u.toString()), ['20 N', '5 N'])
+    assert.deepStrictEqual(dotDivide([1, 2], math.unit('2 N')).map((u) => u.toString()), ['0.5 N^-1', '1 N^-1'])
+    approxDeepEqual(dotDivide(math.unit('10 N'), math.matrix([0.5, 2])), math.matrix([math.unit('20 N'), math.unit('5 N')]))
+  })
+
   /*
   // This is supported not --ericman314
   it('should throw an error if dividing a number by a unit', function() {

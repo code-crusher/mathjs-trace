@@ -1752,6 +1752,69 @@ Math types examples: Type results after multiplying  'MathTypes' with matrices
 }
 
 /*
+Unit and collection multiplication examples (see issue #3660)
+*/
+{
+  const math = create(all, {})
+
+  // a Unit multiplied with a numeric collection gives a collection of Units
+  const gravity: Unit = math.unit('10 N')
+  const direction: number[] = [0.1, -0.3, -4]
+
+  const total1: MathArray<Unit> = math.multiply(gravity, direction)
+  const total2: MathArray<Unit> = math.dotMultiply(gravity, direction)
+  const total3: MathArray<Unit> = math.multiply(direction, gravity)
+  const total4: MathArray<Unit> = math.dotMultiply(direction, gravity)
+  const total5: MathArray<Unit> = math.dotDivide(gravity, direction)
+  const total6: Matrix<Unit> = math.multiply(gravity, math.matrix(direction))
+  const total7: Matrix<Unit> = math.dotMultiply(gravity, math.matrix(direction))
+
+  assert.deepStrictEqual(total1, [
+    math.unit('1 N'),
+    math.unit('-3 N'),
+    math.unit('-40 N')
+  ])
+  assert.deepStrictEqual(total2, total1)
+  assert.deepStrictEqual(total3, total1)
+  assert.deepStrictEqual(total4, total1)
+  assert.deepStrictEqual(total5, [
+    math.unit('100 N'),
+    math.unit('-33.333333333333336 N'),
+    math.unit('-2.5 N')
+  ])
+  assert.deepStrictEqual(total6, math.matrix(total1))
+  assert.deepStrictEqual(total7, total6)
+
+  // a Unit multiplied with a scalar gives a Unit
+  const scalar1: Unit = math.multiply(gravity, 3)
+  const scalar2: Unit = math.multiply(3, gravity)
+  const scalar3: Unit = math.dotMultiply(gravity, 3)
+  assert.deepStrictEqual(scalar1, math.unit('30 N'))
+  assert.deepStrictEqual(scalar2, scalar1)
+  assert.deepStrictEqual(scalar3, scalar1)
+
+  // collections of Units can be added together
+  const zeroGravity: MathArray<Unit> = [
+    math.unit('0 N'),
+    math.unit('0 N'),
+    math.unit('0 N')
+  ]
+  const sum: MathArray<Unit> = math.add(zeroGravity, total1)
+  assert.deepStrictEqual(sum, total1)
+
+  // chained
+  expectTypeOf(math.chain(gravity).multiply(direction)).toMatchTypeOf<
+    MathJsChain<MathArray<Unit>>
+  >()
+  expectTypeOf(math.chain(gravity).dotMultiply(direction)).toMatchTypeOf<
+    MathJsChain<MathArray<Unit>>
+  >()
+  expectTypeOf(math.chain(gravity).dotDivide(direction)).toMatchTypeOf<
+    MathJsChain<MathArray<Unit>>
+  >()
+}
+
+/*
 Sparse matrices examples
 */
 {

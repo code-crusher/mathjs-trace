@@ -195,6 +195,14 @@ describe('multiply', function () {
       assert.strictEqual(multiply(unit(math.complex(3, -4), 'N'), unit(math.complex(7, -2), 'm')).toString(), '(13 - 34i) J')
     })
 
+    it('should multiply a unit and a matrix or array elementwise', function () {
+      // unit * array, computed elementwise (see #3660)
+      assert.deepStrictEqual(multiply(unit('10 N'), [0.1, -0.3, -4]).map((u) => u.toString()), ['1 N', '-3 N', '-40 N'])
+      assert.deepStrictEqual(multiply([0.1, -0.3, -4], unit('10 N')).map((u) => u.toString()), ['1 N', '-3 N', '-40 N'])
+      approxDeepEqual(multiply(unit('10 N'), matrix([0.5, 2])), matrix([unit('5 N'), unit('20 N')]))
+      approxDeepEqual(multiply(matrix([0.5, 2]), unit('10 N')), matrix([unit('5 N'), unit('20 N')]))
+    })
+
     it('should evaluate a complicated unit multiplication', function () {
       const v1 = math.evaluate('0.1 kg/s * 4.2 J/degC/g * 5 degC')
       approxEqual(v1.value, 2100)

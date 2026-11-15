@@ -22,7 +22,7 @@ export type MathScalarType = MathNumericType | Unit
 export type MathGeneric<T extends MathScalarType = MathNumericType> = T
 export type MathArray<T = MathGeneric> = T[] | Array<MathArray<T>>
 export type MathCollection<T = MathGeneric> = MathArray<T> | Matrix<T>
-export type MathType = MathScalarType | MathCollection
+export type MathType = MathScalarType | MathCollection<MathScalarType>
 export type MathExpression = string | string[] | MathCollection
 
 // add type for Matrix Callback Function and Matrix Storage Format
@@ -1334,10 +1334,15 @@ export interface MathJsInstance extends MathJsFactory {
    * @param y Denominator
    * @returns Quotient, x ./ y
    */
+  dotDivide(x: Unit, y: Unit): Unit | number
+  dotDivide(x: Unit, y: MathNumericType): Unit
+  dotDivide(x: MathNumericType, y: Unit): Unit
+  dotDivide(x: Unit, y: MathArray): MathArray<Unit>
+  dotDivide(x: Unit, y: Matrix): Matrix<Unit>
+  dotDivide(x: MathArray, y: Unit): MathArray<Unit>
+  dotDivide(x: Matrix, y: Unit): Matrix<Unit>
   dotDivide<T extends MathCollection>(x: T, y: MathType): T
   dotDivide<T extends MathCollection>(x: MathType, y: T): T
-  dotDivide(x: Unit, y: MathType): Unit
-  dotDivide(x: MathType, y: Unit): Unit
   dotDivide(x: MathNumericType, y: MathNumericType): MathNumericType
 
   /**
@@ -1347,11 +1352,16 @@ export interface MathJsInstance extends MathJsFactory {
    * @param y Right hand value
    * @returns Multiplication of x and y
    */
-  dotMultiply<T extends MathCollection>(x: T, y: MathType): T
-  dotMultiply<T extends MathCollection>(x: MathType, y: T): T
-  dotMultiply(x: Unit, y: MathType): Unit
-  dotMultiply(x: MathType, y: Unit): Unit
+  dotMultiply(x: Unit, y: MathScalarType): Unit
+  dotMultiply(x: MathScalarType, y: Unit): Unit
+  dotMultiply(x: Unit, y: MathArray): MathArray<Unit>
+  dotMultiply(x: Unit, y: Matrix): Matrix<Unit>
+  dotMultiply(x: MathArray, y: Unit): MathArray<Unit>
+  dotMultiply(x: Matrix, y: Unit): Matrix<Unit>
+  dotMultiply<T extends MathCollection<MathScalarType>>(x: T, y: MathType): T
+  dotMultiply<T extends MathCollection<MathScalarType>>(x: MathType, y: T): T
   dotMultiply(x: MathNumericType, y: MathNumericType): MathNumericType
+  dotMultiply(...args: MathScalarType[][]): MathScalarType[]
 
   /**
    * Calculates the power of x to y element wise.
@@ -1522,6 +1532,13 @@ export interface MathJsInstance extends MathJsFactory {
    * @returns Multiplication of x and y
    */
 
+  multiply(x: Unit, y: MathNumericType | Unit): Unit
+  multiply(x: MathNumericType | Unit, y: Unit): Unit
+  multiply(x: Unit, y: MathArray): MathArray<Unit>
+  multiply(x: Unit, y: Matrix): Matrix<Unit>
+  multiply(x: MathArray, y: Unit): MathArray<Unit>
+  multiply(x: Matrix, y: Unit): Matrix<Unit>
+
   multiply<T extends Matrix>(x: T, y: MathType): Matrix
   multiply<T extends Matrix>(x: MathType, y: T): Matrix
 
@@ -1529,7 +1546,6 @@ export interface MathJsInstance extends MathJsFactory {
   multiply<T extends MathArray>(x: T[], y: T): T
   multiply<T extends MathArray>(x: T[], y: T[]): T[]
   multiply<T extends MathArray>(x: T, y: T): MathScalarType
-  multiply(x: Unit, y: Unit): Unit
   multiply(x: number, y: number): number
   multiply(x: MathType, y: MathType, ...values: MathType[]): MathType
   multiply<T extends MathType>(x: T, y: T, ...values: T[]): T
@@ -5757,6 +5773,13 @@ export interface MathJsChain<TValue> {
    * and scalar values.
    * @param y Denominator
    */
+  dotDivide(this: MathJsChain<Unit>, y: Unit): MathJsChain<Unit | number>
+  dotDivide(this: MathJsChain<Unit>, y: MathNumericType): MathJsChain<Unit>
+  dotDivide(this: MathJsChain<Unit>, y: MathArray): MathJsChain<MathArray<Unit>>
+  dotDivide(this: MathJsChain<Unit>, y: Matrix): MathJsChain<Matrix<Unit>>
+  dotDivide(this: MathJsChain<MathArray>, y: Unit): MathJsChain<MathArray<Unit>>
+  dotDivide(this: MathJsChain<Matrix>, y: Unit): MathJsChain<Matrix<Unit>>
+  dotDivide(this: MathJsChain<MathNumericType>, y: Unit): MathJsChain<Unit>
   dotDivide<T extends MathCollection>(
     this: MathJsChain<T>,
     y: MathType
@@ -5765,8 +5788,6 @@ export interface MathJsChain<TValue> {
     this: MathJsChain<MathType>,
     y: T
   ): MathJsChain<T>
-  dotDivide(this: MathJsChain<Unit>, y: MathType): MathJsChain<Unit>
-  dotDivide(this: MathJsChain<MathType>, y: Unit): MathJsChain<Unit>
   dotDivide(
     this: MathJsChain<MathNumericType>,
     y: MathNumericType
@@ -5777,6 +5798,18 @@ export interface MathJsChain<TValue> {
    * matrices and scalar values.
    * @param y Right hand value
    */
+  dotMultiply(this: MathJsChain<Unit>, y: MathScalarType): MathJsChain<Unit>
+  dotMultiply(
+    this: MathJsChain<Unit>,
+    y: MathArray
+  ): MathJsChain<MathArray<Unit>>
+  dotMultiply(this: MathJsChain<Unit>, y: Matrix): MathJsChain<Matrix<Unit>>
+  dotMultiply(
+    this: MathJsChain<MathArray>,
+    y: Unit
+  ): MathJsChain<MathArray<Unit>>
+  dotMultiply(this: MathJsChain<Matrix>, y: Unit): MathJsChain<Matrix<Unit>>
+  dotMultiply(this: MathJsChain<MathNumericType>, y: Unit): MathJsChain<Unit>
   dotMultiply<T extends MathCollection>(
     this: MathJsChain<T>,
     y: MathType
@@ -5785,8 +5818,6 @@ export interface MathJsChain<TValue> {
     this: MathJsChain<MathType>,
     y: T
   ): MathJsChain<T>
-  dotMultiply(this: MathJsChain<Unit>, y: MathType): MathJsChain<Unit>
-  dotMultiply(this: MathJsChain<MathType>, y: Unit): MathJsChain<Unit>
   dotMultiply(
     this: MathJsChain<MathNumericType>,
     y: MathNumericType
@@ -5913,11 +5944,18 @@ export interface MathJsChain<TValue> {
    * matrix product is calculated.
    * @param y The second value to multiply
    */
+  multiply(
+    this: MathJsChain<Unit>,
+    y: MathNumericType | Unit
+  ): MathJsChain<Unit>
+  multiply(this: MathJsChain<Unit>, y: MathArray): MathJsChain<MathArray<Unit>>
+  multiply(this: MathJsChain<Unit>, y: Matrix): MathJsChain<Matrix<Unit>>
+  multiply(this: MathJsChain<MathArray>, y: Unit): MathJsChain<MathArray<Unit>>
+  multiply(this: MathJsChain<Matrix>, y: Unit): MathJsChain<Matrix<Unit>>
   multiply<T extends MathCollection>(
     this: MathJsChain<T>,
     y: MathType
   ): MathJsChain<T>
-  multiply(this: MathJsChain<Unit>, y: Unit): MathJsChain<Unit>
   multiply(this: MathJsChain<number>, y: number): MathJsChain<number>
   multiply(this: MathJsChain<MathType>, y: MathType): MathJsChain<MathType>
 

@@ -52,6 +52,17 @@ describe('dotMultiply', function () {
     assert.strictEqual(dotMultiply(unit('5 mm'), 0).toString(), '0 mm')
   })
 
+  it('should multiply a unit elementwise with a matrix or array', function () {
+    // unit * array, computed elementwise (see #3660)
+    assert.deepStrictEqual(dotMultiply(unit('10 N'), [0.1, -0.3, -4]).map((u) => u.toString()), ['1 N', '-3 N', '-40 N'])
+    assert.deepStrictEqual(dotMultiply([0.1, -0.3, -4], unit('10 N')).map((u) => u.toString()), ['1 N', '-3 N', '-40 N'])
+    approxDeepEqual(dotMultiply(unit('10 N'), matrix([0.5, 2])), matrix([unit('5 N'), unit('20 N')]))
+    approxDeepEqual(dotMultiply(matrix([0.5, 2]), unit('10 N')), matrix([unit('5 N'), unit('20 N')]))
+
+    // array of units * array of numbers, computed elementwise
+    assert.deepStrictEqual(dotMultiply([unit('5 mm'), unit('10 mm')], [1, 2]).map((u) => u.toString()), ['5 mm', '20 mm'])
+  })
+
   it('should throw an error with strings', function () {
     // string
     assert.throws(function () { dotMultiply('hello', 'world') })

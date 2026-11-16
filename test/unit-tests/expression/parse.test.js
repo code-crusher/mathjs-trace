@@ -2806,6 +2806,47 @@ describe('parse', function () {
         assert.throws(function () { parse('custom(x', options) }, /Parenthesis \) expected/)
         assert.throws(function () { parse('custom(x, ', options) }, /Unexpected end of expression/)
       })
+
+      it('should not corrupt an ongoing parse when a custom node parses an expression itself', function () {
+        // A custom node that triggers a nested (failing) parse while the
+        // outer expression is being parsed should not corrupt the parser
+        // state of the ongoing parse (see issue #3629)
+        function NestingCustomNode (args) {
+          try {
+            parse('this is not valid syntax @@')
+            this.nestedError = null
+          } catch (err) {
+            this.nestedError = err
+          }
+          this.args = args
+        }
+        NestingCustomNode.prototype = new math.Node()
+        NestingCustomNode.prototype.toString = function () {
+          return 'NestingCustomNode(' + this.args.map(function (arg) { return arg.toString() }).join(', ') + ')'
+        }
+        NestingCustomNode.prototype._compile = function (math, argNames) {
+          return function () {
+            return 'NestingCustomNode'
+          }
+        }
+        NestingCustomNode.prototype.forEach = function (callback) {
+          // we don't have childs
+        }
+
+        const nestingOptions = {
+          nodes: {
+            nesting: NestingCustomNode
+          }
+        }
+
+        const node = parse('nesting(1) + 2', nestingOptions)
+        // the outer parse must still be intact: the nested parse did not consume
+        // or corrupt the outer parser state
+        assert.strictEqual(node.toString(), 'NestingCustomNode(1) + 2')
+        assert.strictEqual(node.args[0].args.length, 1)
+        assert.strictEqual(node.args[0].args[0].toString(), '1')
+        assert.ok(node.args[0].nestedError instanceof SyntaxError)
+      })
     })
   })
 

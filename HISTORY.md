@@ -2,6 +2,10 @@
 
 # unpublished changes since 15.2.0
 
+- Fix: #3629 Parser: keep the parser state private to the parser factory
+  instead of threading the `state` object through every internal
+  `parse*(state)` function, so a parse triggered from within a parse (for
+  example from a custom node) can no longer corrupt the ongoing parse.
 - Docs: fix miscellaneous errors in examples on doc pages, in partial
   preparation for a systematic test harness on all such examples (#3741).
   Thanks @yxshee.

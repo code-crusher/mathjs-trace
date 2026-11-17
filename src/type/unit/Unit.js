@@ -357,12 +357,28 @@ export const createUnitClass = /* #__PURE__ */ factory(name, dependencies, ({
       skipWhitespace()
       if (parseCharacter('^')) {
         skipWhitespace()
+        // Allow the power to be wrapped in parentheses, like "m ^ (2)"
+        let parenCount = 0
+        while (parseCharacter('(')) {
+          parenCount += 1
+          skipWhitespace()
+        }
         const p = parseNumber()
         if (p === null) {
           // No valid number found for the power!
           throw new SyntaxError('In "' + str + '", "^" must be followed by a floating-point number')
         }
         power *= p
+        // Consume the closing parentheses of the power
+        skipWhitespace()
+        while (parenCount > 0 && c === ')') {
+          parenCount -= 1
+          next()
+          skipWhitespace()
+        }
+        if (parenCount !== 0) {
+          throw new SyntaxError('Unmatched "(" in "' + text + '"')
+        }
       }
 
       // Add the unit to the list

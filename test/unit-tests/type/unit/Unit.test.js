@@ -963,6 +963,52 @@ describe('Unit', function () {
       assert.strictEqual(unit1.units[0].prefix.name, '')
     })
 
+    it('should parse a power wrapped in parentheses', function () {
+      let unit1
+
+      unit1 = Unit.parse('m ^ (1)')
+      assert.strictEqual(unit1.units[0].unit.name, 'm')
+      assert.strictEqual(unit1.units[0].power, 1)
+
+      unit1 = Unit.parse('m^(2)')
+      assert.strictEqual(unit1.units[0].unit.name, 'm')
+      assert.strictEqual(unit1.units[0].power, 2)
+
+      unit1 = Unit.parse('m ^ ( -2 )')
+      assert.strictEqual(unit1.units[0].unit.name, 'm')
+      assert.strictEqual(unit1.units[0].power, -2)
+
+      unit1 = Unit.parse('m^((3))')
+      assert.strictEqual(unit1.units[0].unit.name, 'm')
+      assert.strictEqual(unit1.units[0].power, 3)
+
+      unit1 = Unit.parse('981 cm/s^(2)')
+      approxEqual(unit1.value, 9.81)
+      assert.strictEqual(unit1.units[0].unit.name, 'm')
+      assert.strictEqual(unit1.units[1].unit.name, 's')
+      assert.strictEqual(unit1.units[1].power, -2)
+      assert.strictEqual(unit1.units[0].prefix.name, 'c')
+
+      unit1 = Unit.parse('kg (m^2 / (s^2 / (K^(-1) / mol)))')
+      assert.strictEqual(unit1.units[0].unit.name, 'g')
+      assert.strictEqual(unit1.units[1].unit.name, 'm')
+      assert.strictEqual(unit1.units[2].unit.name, 's')
+      assert.strictEqual(unit1.units[3].unit.name, 'K')
+      assert.strictEqual(unit1.units[4].unit.name, 'mol')
+      assert.strictEqual(unit1.units[0].power, 1)
+      assert.strictEqual(unit1.units[1].power, 2)
+      assert.strictEqual(unit1.units[2].power, -2)
+      assert.strictEqual(unit1.units[3].power, -1)
+      assert.strictEqual(unit1.units[4].power, -1)
+    })
+
+    it('should throw an exception when a power in parentheses is invalid', function () {
+      assert.throws(function () { Unit.parse('m^()') }, /"\^" must be followed by a floating-point number/)
+      assert.throws(function () { Unit.parse('m^(a)') }, /"\^" must be followed by a floating-point number/)
+      assert.throws(function () { Unit.parse('m^((2)') }, /Unmatched "\("/)
+      assert.throws(function () { Unit.parse('m^(2))') }, /Unmatched "\)"/)
+    })
+
     it('should throw an exception when parsing an invalid unit', function () {
       assert.throws(function () { Unit.parse('.meter') }, /Unexpected "\."/)
       assert.throws(function () { Unit.parse('5e') }, /Unit "e" not found/)
